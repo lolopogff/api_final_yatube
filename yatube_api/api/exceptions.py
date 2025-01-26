@@ -1,5 +1,5 @@
 from rest_framework.views import exception_handler
-from rest_framework.exceptions import NotAuthenticated, NotFound
+from rest_framework.exceptions import NotAuthenticated
 
 
 def custom_exception_handler(exc, context):

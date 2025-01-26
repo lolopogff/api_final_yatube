@@ -156,7 +156,8 @@ class CommentViewSet(viewsets.ViewSet):
                                    " данного действия.")
 
         # Частичное обновление комментария
-        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        serializer = CommentSerializer(comment, data=request.data,
+                                       partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -209,7 +210,9 @@ class FollowViewSet(viewsets.ViewSet):
 
         # Если передан параметр search, фильтруем подписки
         if search_query:
-            follows = follows.filter(following__username__icontains=search_query)
+            follows = follows.filter(
+                following__username__icontains=search_query
+            )
 
         serializer = FollowSerializer(follows, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

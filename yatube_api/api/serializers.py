@@ -33,10 +33,13 @@ class FollowSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
-    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False)
+    group = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(),
+        required=False
+    )
 
     class Meta:
-        fields = ['id', 'text', 'author', 'pub_date', 'group']  # Добавляем поле group
+        fields = ['id', 'text', 'author', 'pub_date', 'group']
         read_only_fields = ['author', 'pub_date']
         model = Post
         extra_kwargs = {

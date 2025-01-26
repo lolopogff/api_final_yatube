@@ -1,11 +1,14 @@
-from rest_framework import viewsets, status, generics, permissions
+from rest_framework import viewsets, status, permissions
 from posts.models import Post, Comment, Group, Follow, User
-from rest_framework.exceptions import PermissionDenied, NotFound, ValidationError
+from rest_framework.exceptions import (PermissionDenied, NotFound,
+                                       ValidationError)
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .serializers import PostSerializer, CommentSerializer, GroupSerializer, FollowSerializer, FollowSerializer
+from .serializers import (PostSerializer, CommentSerializer,
+                          GroupSerializer,
+                          FollowSerializer)
 
 
 class PostsViewSet(viewsets.ModelViewSet):
@@ -24,12 +27,14 @@ class PostsViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()  # Получаем публикацию по id
 
-        # Проверяем, что текущий пользователь является автором публикации
         if instance.author != request.user:
-            raise PermissionDenied("У вас недостаточно прав для выполнения данного действия.")
+            raise PermissionDenied("У вас недостаточно прав для "
+                                   "выполнения данного действия.")
 
         # Если пользователь является автором, выполняем обновление
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(instance,
+                                         data=request.data,
+                                         partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -40,7 +45,8 @@ class PostsViewSet(viewsets.ModelViewSet):
 
         # Проверяем, что текущий пользователь является автором публикации
         if instance.author != request.user:
-            raise PermissionDenied("У вас недостаточно прав для выполнения данного действия.")
+            raise PermissionDenied("У вас недостаточно прав для выполнения"
+                                   " данного действия.")
 
         # Если пользователь является автором, выполняем удаление
         self.perform_destroy(instance)
@@ -51,7 +57,6 @@ class CommentViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]  # Запрет анонимных запросов
 
     def get_permissions(self):
-        # Разрешаем доступ неавторизованным пользователям только для методов list и retrieve
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
         return super().get_permissions()
@@ -109,7 +114,6 @@ class CommentViewSet(viewsets.ViewSet):
         except Post.DoesNotExist:
             raise NotFound("Публикация не найдена.")
 
-        # Проверяем, существует ли комментарий с указанным id и принадлежит ли он публикации
         try:
             comment = Comment.objects.get(id=id, post=post)
         except Comment.DoesNotExist:
@@ -117,10 +121,13 @@ class CommentViewSet(viewsets.ViewSet):
 
         # Проверяем, что текущий пользователь является автором комментария
         if comment.author != request.user:
-            raise PermissionDenied("У вас недостаточно прав для выполнения данного действия.")
+            raise PermissionDenied("У вас недостаточно прав для выполнения "
+                                   "данного действия.")
 
         # Проверяем, что поле text присутствует в запросе и является строкой
-        if 'text' not in request.data or not isinstance(request.data['text'], str) or not request.data['text'].strip():
+        if ('text' not in request.data
+                or not isinstance(request.data['text'], str)
+                or not request.data['text'].strip()):
             raise ValidationError({"text": ["Обязательное поле."]})
 
         # Обновляем комментарий
@@ -138,7 +145,6 @@ class CommentViewSet(viewsets.ViewSet):
         except Post.DoesNotExist:
             raise NotFound("Публикация не найдена.")
 
-        # Проверяем, существует ли комментарий с указанным id и принадлежит ли он публикации
         try:
             comment = Comment.objects.get(id=id, post=post)
         except Comment.DoesNotExist:
@@ -146,7 +152,8 @@ class CommentViewSet(viewsets.ViewSet):
 
         # Проверяем, что текущий пользователь является автором комментария
         if comment.author != request.user:
-            raise PermissionDenied("У вас недостаточно прав для выполнения данного действия.")
+            raise PermissionDenied("У вас недостаточно прав для выполнения"
+                                   " данного действия.")
 
         # Частичное обновление комментария
         serializer = CommentSerializer(comment, data=request.data, partial=True)
@@ -163,7 +170,6 @@ class CommentViewSet(viewsets.ViewSet):
         except Post.DoesNotExist:
             raise NotFound("Публикация не найдена.")
 
-        # Проверяем, существует ли комментарий с указанным id и принадлежит ли он публикации
         try:
             comment = Comment.objects.get(id=id, post=post)
         except Comment.DoesNotExist:
@@ -171,7 +177,8 @@ class CommentViewSet(viewsets.ViewSet):
 
         # Проверяем, что текущий пользователь является автором комментария
         if comment.author != request.user:
-            raise PermissionDenied("У вас недостаточно прав для выполнения данного действия.")
+            raise PermissionDenied("У вас недостаточно прав для выполнения"
+                                   " данного действия.")
 
         # Удаляем комментарий
         comment.delete()
@@ -185,7 +192,6 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupSerializer
 
     def get_permissions(self):
-        # Разрешаем доступ неавторизованным пользователям только для методов list и retrieve
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
         return super().get_permissions()
